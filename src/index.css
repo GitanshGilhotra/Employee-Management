@@ -2,18 +2,16 @@
 @tailwind components;
 @tailwind utilities;
 
-* {
-  color: #fff;
+body {
+  background-color: #f7f7f7;
+  color: #111;
 }
 
 input,
 textarea,
 select {
-  color: #222;
-}
-
-body {
-  background-color: #111;
+  color: inherit;
+  background-color: transparent;
 }
 
 #tasklist::-webkit-scrollbar {
@@ -22,6 +20,6 @@ body {
 }
 
 #tasklist::-webkit-scrollbar-thumb {
-  background-color: rgb(143, 143, 143);
+  background-color: rgb(120, 120, 120);
   border-radius: 50px;
 }

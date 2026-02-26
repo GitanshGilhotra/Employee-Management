@@ -31,17 +31,17 @@ const Login = ({ handleLogin }) => {
     }
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-tr from-emerald-400 via-blue-300 to-purple-400">
-            <div className="bg-white/80 backdrop-blur-md shadow-2xl rounded-2xl px-10 py-12 w-full max-w-md flex flex-col items-center">
-                <h1 className="text-3xl font-extrabold text-emerald-700 mb-2 text-center">Welcome Back</h1>
-                <p className="text-gray-600 mb-8 text-center">Sign in to your account to continue</p>
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-800">
+            <div className="bg-white/95 backdrop-blur-md shadow-2xl border border-neutral-200 rounded-2xl px-10 py-12 w-full max-w-md flex flex-col items-center">
+                <h1 className="text-3xl font-extrabold text-neutral-900 mb-2 text-center tracking-tight">Welcome Back</h1>
+                <p className="text-neutral-600 mb-8 text-center">Sign in to your account to continue</p>
                 <form onSubmit={submitHandler} className="w-full flex flex-col gap-5">
                     <div>
                         <input
                             value={email}
                             onChange={handleEmailChange}
                             required
-                            className="w-full outline-none bg-white/70 border-2 border-emerald-300 focus:border-emerald-600 font-medium text-base py-3 px-5 rounded-xl placeholder:text-gray-400 transition font-sans"
+                            className="w-full outline-none bg-white/80 border-2 border-neutral-300 focus:border-neutral-900 font-medium text-base py-3 px-5 rounded-xl placeholder:text-neutral-400 transition font-sans"
                             type="email"
                             placeholder="Email address"
                         />
@@ -51,14 +51,14 @@ const Login = ({ handleLogin }) => {
                             value={password}
                             onChange={handlePasswordChange}
                             required
-                            className="w-full outline-none bg-white/70 border-2 border-emerald-300 focus:border-emerald-600 font-medium text-base py-3 px-5 rounded-xl placeholder:text-gray-400 transition pr-12 font-sans"
+                            className="w-full outline-none bg-white/80 border-2 border-neutral-300 focus:border-neutral-900 font-medium text-base py-3 px-5 rounded-xl placeholder:text-neutral-400 transition pr-12 font-sans"
                             type={showPassword ? "text" : "password"}
                             placeholder="Password"
                         />
                         <button
                             type="button"
                             tabIndex={-1}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1 text-gray-500 hover:text-emerald-600 focus:outline-none"
+                            className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1 text-neutral-500 hover:text-neutral-900 focus:outline-none"
                             onClick={() => setShowPassword((v) => !v)}
                             aria-label={showPassword ? "Hide password" : "Show password"}
                         >
@@ -77,10 +77,10 @@ const Login = ({ handleLogin }) => {
                         </button>
                     </div>
                     {error && (
-                        <div className="text-red-600 text-center text-sm font-medium -mt-2">{error}</div>
+                        <div className="text-neutral-900 text-center text-sm font-medium -mt-2">{error}</div>
                     )}
                     <button
-                        className="mt-2 text-white font-semibold bg-emerald-600 hover:bg-emerald-700 transition py-3 px-8 w-full rounded-xl flex items-center justify-center disabled:opacity-60"
+                        className="mt-2 text-white font-semibold bg-neutral-900 hover:bg-black transition py-3 px-8 w-full rounded-xl flex items-center justify-center disabled:opacity-60"
                         disabled={loading}
                         type="submit"
                     >
@@ -94,10 +94,10 @@ const Login = ({ handleLogin }) => {
                     </button>
                 </form>
                 <div className="flex justify-between w-full mt-6 text-sm">
-                    <a href="#" className="text-emerald-600 hover:underline">Forgot password?</a>
-                    <span className="text-gray-500">|
+                    <a href="#" className="text-neutral-700 hover:text-neutral-900 hover:underline">Forgot password?</a>
+                    <span className="text-neutral-400">|
                     </span>
-                    <a href="#" className="text-emerald-600 hover:underline">Sign up</a>
+                    <a href="#" className="text-neutral-700 hover:text-neutral-900 hover:underline">Sign up</a>
                 </div>
             </div>
         </div>
