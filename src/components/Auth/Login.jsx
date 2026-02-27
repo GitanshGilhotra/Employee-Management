@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { Link } from 'react-router-dom'
 
 const Login = ({ handleLogin }) => {
   const [email, setEmail] = useState('')
@@ -92,8 +93,12 @@ const Login = ({ handleLogin }) => {
         </form>
 
         <div className="flex justify-between mt-6 text-sm">
-          <a href="#" className="text-slate-600 hover:text-slate-900">Forgot password?</a>
-          <a href="#" className="text-slate-600 hover:text-slate-900">Create account</a>
+          <Link to="/forgot-password" className="text-slate-600 hover:text-slate-900">
+            Forgot password?
+          </Link>
+          <Link to="/signup" className="text-slate-600 hover:text-slate-900">
+            Create account
+          </Link>
         </div>
       </div>
     </div>

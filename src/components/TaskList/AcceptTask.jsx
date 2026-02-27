@@ -6,7 +6,7 @@ const AcceptTask = ({ data, taskIndex, themeMode = 'light' }) => {
   const [userData, setUserData] = useContext(AuthContext)
   const t = getTheme(themeMode)
 
-  const handleStatusChange = (status) => {
+  const handleStatusChange = (status) => {\r\n    const confirmationText = status === 'completed' ? 'Mark this task as completed?' : 'Mark this task as failed?'\r\n    if (!window.confirm(confirmationText)) return
     const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'))
     if (!loggedInUser || !userData) return
     const user = userData.find((u) => u.email === loggedInUser.data.email)
@@ -63,3 +63,4 @@ const AcceptTask = ({ data, taskIndex, themeMode = 'light' }) => {
 }
 
 export default AcceptTask
+
