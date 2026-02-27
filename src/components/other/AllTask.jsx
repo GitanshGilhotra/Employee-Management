@@ -1,33 +1,33 @@
 import React, { useContext } from 'react'
 import { AuthContext } from '../../context/AuthProvider'
+import { getTheme } from '../../theme'
 
-const AllTask = () => {
+const AllTask = ({ themeMode = 'light' }) => {
   const [userData] = useContext(AuthContext)
+  const t = getTheme(themeMode)
 
   return (
-    <div className="bg-white/90 dark:bg-neutral-950/80 p-6 rounded-2xl mt-5 border border-neutral-200 dark:border-neutral-800 shadow-md">
-      <div className="bg-neutral-900 text-white dark:bg-white dark:text-black mb-3 py-2 px-4 flex justify-between rounded-lg">
-        <h2 className="text-sm font-semibold w-1/5">Employee Name</h2>
-        <h3 className="text-sm font-semibold w-1/5">New Task</h3>
-        <h5 className="text-sm font-semibold w-1/5">Active Task</h5>
-        <h5 className="text-sm font-semibold w-1/5">Completed</h5>
-        <h5 className="text-sm font-semibold w-1/5">Failed</h5>
+    <div className={`rounded-2xl border ${t.border} ${t.card} p-6 shadow-sm panel-reveal`}>
+      <div className={`flex items-center justify-between rounded-xl ${themeMode === 'dark' ? 'bg-white text-black' : 'bg-slate-900 text-white'} px-4 py-3 text-xs font-semibold uppercase tracking-widest`}>
+        <span className="w-1/5">Employee</span>
+        <span className="w-1/5 text-center">New</span>
+        <span className="w-1/5 text-center">Active</span>
+        <span className="w-1/5 text-center">Completed</span>
+        <span className="w-1/5 text-center">Failed</span>
       </div>
-      <div>
-        {userData.map(function (elem, idx) {
-          return (
-            <div
-              key={idx}
-              className="border border-neutral-300 dark:border-neutral-700 mb-2 py-2 px-4 flex justify-between rounded-lg bg-white/80 dark:bg-neutral-900/70"
-            >
-              <h2 className="text-sm font-medium w-1/5 text-neutral-900 dark:text-neutral-100">{elem.firstName}</h2>
-              <h3 className="text-sm font-medium w-1/5 text-neutral-700 dark:text-neutral-300">{elem.taskCounts.newTask}</h3>
-              <h5 className="text-sm font-medium w-1/5 text-neutral-700 dark:text-neutral-300">{elem.taskCounts.active}</h5>
-              <h5 className="text-sm font-medium w-1/5 text-neutral-900 dark:text-neutral-100">{elem.taskCounts.completed}</h5>
-              <h5 className="text-sm font-medium w-1/5 text-neutral-700 dark:text-neutral-300">{elem.taskCounts.failed}</h5>
-            </div>
-          )
-        })}
+      <div className="mt-3 space-y-2">
+        {userData.map((elem, idx) => (
+          <div
+            key={idx}
+            className={`flex items-center justify-between rounded-xl border ${t.border} ${t.cardSoft} px-4 py-3 text-sm ${t.textMuted}`}
+          >
+            <span className={`w-1/5 font-medium ${t.text}`}>{elem.firstName}</span>
+            <span className="w-1/5 text-center">{elem.taskCounts.newTask}</span>
+            <span className="w-1/5 text-center">{elem.taskCounts.active}</span>
+            <span className="w-1/5 text-center">{elem.taskCounts.completed}</span>
+            <span className="w-1/5 text-center">{elem.taskCounts.failed}</span>
+          </div>
+        ))}
       </div>
     </div>
   )

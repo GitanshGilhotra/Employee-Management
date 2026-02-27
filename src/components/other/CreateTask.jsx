@@ -1,8 +1,10 @@
 import React, { useContext, useState } from 'react'
 import { AuthContext } from '../../context/AuthProvider'
+import { getTheme } from '../../theme'
 
-const CreateTask = () => {
+const CreateTask = ({ themeMode = 'light' }) => {
   const [userData, setUserData] = useContext(AuthContext)
+  const t = getTheme(themeMode)
 
   const [taskTitle, setTaskTitle] = useState('')
   const [taskDescription, setTaskDescription] = useState('')
@@ -38,7 +40,6 @@ const CreateTask = () => {
     })
     setUserData(data)
     localStorage.setItem('employees', JSON.stringify(data))
-    console.log(data)
 
     setTaskTitle('')
     setCategory('')
@@ -48,75 +49,60 @@ const CreateTask = () => {
   }
 
   return (
-    <div className="p-6 mt-5 rounded-2xl border border-neutral-200 bg-white/90 shadow-md dark:border-neutral-800 dark:bg-neutral-950/80">
-      <form
-        onSubmit={(e) => {
-          submitHandler(e)
-        }}
-        className="flex flex-wrap w-full items-start justify-between gap-6"
-      >
-        <div className="w-full lg:w-1/2">
+    <div className={`rounded-2xl border ${t.border} ${t.card} p-6 shadow-sm panel-reveal`}>
+      <form onSubmit={submitHandler} className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="space-y-4">
           <div>
-            <h3 className="text-sm text-neutral-600 dark:text-neutral-300 mb-0.5">Task Title</h3>
+            <label className={`text-sm ${t.textMuted}`}>Task Title</label>
             <input
               value={taskTitle}
-              onChange={(e) => {
-                setTaskTitle(e.target.value)
-              }}
-              className="text-sm py-2 px-3 w-full rounded-lg outline-none bg-white/80 dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 text-neutral-900 dark:text-neutral-100 focus:border-neutral-900 dark:focus:border-white transition"
+              onChange={(e) => setTaskTitle(e.target.value)}
+              className={`mt-2 w-full rounded-xl border ${t.border} ${themeMode === 'dark' ? 'bg-transparent text-white' : 'bg-white text-slate-900'} px-4 py-3 text-sm placeholder:text-slate-400 focus:border-slate-900 focus:outline-none`}
               type="text"
               placeholder="Make a UI design"
             />
           </div>
-          <div className="mt-4">
-            <h3 className="text-sm text-neutral-600 dark:text-neutral-300 mb-0.5">Date</h3>
+          <div>
+            <label className={`text-sm ${t.textMuted}`}>Date</label>
             <input
               value={taskDate}
-              onChange={(e) => {
-                setTaskDate(e.target.value)
-              }}
-              className="text-sm py-2 px-3 w-full rounded-lg outline-none bg-white/80 dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 text-neutral-900 dark:text-neutral-100 focus:border-neutral-900 dark:focus:border-white transition"
+              onChange={(e) => setTaskDate(e.target.value)}
+              className={`mt-2 w-full rounded-xl border ${t.border} ${themeMode === 'dark' ? 'bg-transparent text-white' : 'bg-white text-slate-900'} px-4 py-3 text-sm focus:border-slate-900 focus:outline-none`}
               type="date"
             />
           </div>
-          <div className="mt-4">
-            <h3 className="text-sm text-neutral-600 dark:text-neutral-300 mb-0.5">Asign to</h3>
+          <div>
+            <label className={`text-sm ${t.textMuted}`}>Assign to</label>
             <input
               value={asignTo}
-              onChange={(e) => {
-                setAsignTo(e.target.value)
-              }}
-              className="text-sm py-2 px-3 w-full rounded-lg outline-none bg-white/80 dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 text-neutral-900 dark:text-neutral-100 focus:border-neutral-900 dark:focus:border-white transition"
+              onChange={(e) => setAsignTo(e.target.value)}
+              className={`mt-2 w-full rounded-xl border ${t.border} ${themeMode === 'dark' ? 'bg-transparent text-white' : 'bg-white text-slate-900'} px-4 py-3 text-sm placeholder:text-slate-400 focus:border-slate-900 focus:outline-none`}
               type="text"
               placeholder="Employee name"
             />
           </div>
-          <div className="mt-4">
-            <h3 className="text-sm text-neutral-600 dark:text-neutral-300 mb-0.5">Category</h3>
+          <div>
+            <label className={`text-sm ${t.textMuted}`}>Category</label>
             <input
               value={category}
-              onChange={(e) => {
-                setCategory(e.target.value)
-              }}
-              className="text-sm py-2 px-3 w-full rounded-lg outline-none bg-white/80 dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 text-neutral-900 dark:text-neutral-100 focus:border-neutral-900 dark:focus:border-white transition"
+              onChange={(e) => setCategory(e.target.value)}
+              className={`mt-2 w-full rounded-xl border ${t.border} ${themeMode === 'dark' ? 'bg-transparent text-white' : 'bg-white text-slate-900'} px-4 py-3 text-sm placeholder:text-slate-400 focus:border-slate-900 focus:outline-none`}
               type="text"
               placeholder="Design, dev, etc"
             />
           </div>
         </div>
 
-        <div className="w-full lg:w-2/5 flex flex-col items-start">
-          <h3 className="text-sm text-neutral-600 dark:text-neutral-300 mb-0.5">Description</h3>
-          <textarea
-            value={taskDescription}
-            onChange={(e) => {
-              setTaskDescription(e.target.value)
-            }}
-            className="w-full h-44 text-sm py-2 px-4 rounded-lg outline-none bg-white/80 dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 text-neutral-900 dark:text-neutral-100 focus:border-neutral-900 dark:focus:border-white transition"
-          ></textarea>
-          <button className="mt-4 w-full py-3 rounded-lg text-sm font-semibold border bg-black text-white border-black hover:bg-neutral-800 transition dark:bg-white dark:text-black dark:border-white dark:hover:bg-neutral-200">
-            Create Task
-          </button>
+        <div className="space-y-4">
+          <div>
+            <label className={`text-sm ${t.textMuted}`}>Description</label>
+            <textarea
+              value={taskDescription}
+              onChange={(e) => setTaskDescription(e.target.value)}
+              className={`mt-2 w-full h-44 rounded-xl border ${t.border} ${themeMode === 'dark' ? 'bg-transparent text-white' : 'bg-white text-slate-900'} px-4 py-3 text-sm placeholder:text-slate-400 focus:border-slate-900 focus:outline-none`}
+            ></textarea>
+          </div>
+          <button className={`w-full rounded-xl py-3 text-sm font-semibold border ${t.buttonPrimary}`}>Create Task</button>
         </div>
       </form>
     </div>

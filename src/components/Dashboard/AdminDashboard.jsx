@@ -1,177 +1,215 @@
 import React, { useState } from 'react'
 import CreateTask from '../other/CreateTask'
 import AllTask from '../other/AllTask'
+import { getTheme } from '../../theme'
 
 const navLinks = [
-  { name: 'Dashboard', icon: '📊' },
-  { name: 'Create Task', icon: '➕' },
-  { name: 'All Tasks', icon: '📋' },
+  { name: 'Overview', icon: 'O' },
+  { name: 'Create Task', icon: 'C' },
+  { name: 'All Tasks', icon: 'A' },
 ]
 
-const Sidebar = ({ active, setActive, theme }) => (
-  <aside
-    className={`h-full w-24 flex flex-col items-center py-8 shadow-xl border-r ${
-      theme === 'dark'
-        ? 'bg-neutral-950 text-neutral-100 border-neutral-800'
-        : 'bg-white text-neutral-900 border-neutral-200'
-    }`}
-  >
-    {navLinks.map((link, idx) => {
-      const isActive = active === idx
-      return (
-        <button
-          key={link.name}
-          onClick={() => setActive(idx)}
-          className={`my-3 flex flex-col items-center group relative transition-all duration-300 px-2 py-3 w-20 rounded-xl border ${
-            isActive
-              ? theme === 'dark'
-                ? 'bg-neutral-900 text-white border-neutral-700 shadow-[0_0_20px_rgba(255,255,255,0.08)]'
-                : 'bg-neutral-100 text-neutral-900 border-neutral-300 shadow-[0_0_20px_rgba(0,0,0,0.08)]'
-              : theme === 'dark'
-                ? 'text-neutral-300 border-transparent hover:bg-neutral-900/70'
-                : 'text-neutral-600 border-transparent hover:bg-neutral-100'
-          }`}
-        >
-          <span className="text-2xl group-hover:scale-110 transition-transform">{link.icon}</span>
-          <span className={`text-xs mt-1 ${isActive ? 'opacity-100' : 'opacity-70'} transition-opacity`}>
-            {link.name}
-          </span>
-          <span className="absolute left-0 top-3 bottom-3 w-1 rounded-full bg-current opacity-0 group-hover:opacity-30 transition-opacity" />
-        </button>
-      )
-    })}
-  </aside>
-)
+const Sidebar = ({ active, setActive, theme }) => {
+  const t = getTheme(theme)
 
-const Navbar = ({ theme, setTheme, onLogout }) => (
-  <nav
-    className={`w-full h-16 flex items-center justify-between px-8 backdrop-blur-md border-b ${
-      theme === 'dark'
-        ? 'bg-neutral-950/80 border-neutral-800'
-        : 'bg-white/90 border-neutral-200'
-    }`}
-  >
-    <span className={`text-xl font-bold tracking-wide ${theme === 'dark' ? 'text-white' : 'text-neutral-900'}`}>
-      Admin Dashboard
-    </span>
-    <div className="flex items-center gap-4">
-      <button
-        onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-        className={`p-2 rounded-full border transition ${
-          theme === 'dark'
-            ? 'bg-white text-black border-white hover:bg-neutral-200'
-            : 'bg-black text-white border-black hover:bg-neutral-800'
-        }`}
-        title="Toggle theme"
-      >
-        {theme === 'dark' ? '🌙' : '☀️'}
-      </button>
-      <span
-        className={`w-9 h-9 rounded-full flex items-center justify-center font-bold shadow-lg border ${
-          theme === 'dark'
-            ? 'bg-neutral-900 text-white border-neutral-700'
-            : 'bg-white text-neutral-900 border-neutral-300'
-        }`}
-      >
-        A
-      </span>
-      <button
-        onClick={onLogout}
-        className={`ml-4 px-4 py-2 rounded font-semibold shadow transition border ${
-          theme === 'dark'
-            ? 'bg-white text-black border-white hover:bg-neutral-200'
-            : 'bg-black text-white border-black hover:bg-neutral-800'
-        }`}
-      >
-        Logout
-      </button>
-    </div>
-  </nav>
-)
+  return (
+    <aside className={`h-full w-64 flex flex-col border-r ${theme === 'dark' ? 'bg-[#0e1117]' : 'bg-white'} ${t.border}`}>
+      <div className="px-6 pt-8 pb-6">
+        <div className={`flex items-center gap-3 rounded-2xl px-3 py-3 ${t.cardSoft}`}>
+          <div className={`h-10 w-10 rounded-xl flex items-center justify-center text-sm font-bold font-[Space_Grotesk] ${t.chip}`}>
+            EM
+          </div>
+          <div>
+            <p className={`text-sm font-semibold ${t.text}`}>Employee Hub</p>
+            <p className={`text-xs ${t.textMuted}`}>Admin Console</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="px-4">
+        <p className={`px-3 text-xs uppercase tracking-[0.2em] ${t.textSubtle}`}>Navigation</p>
+        <div className="mt-4 space-y-2">
+          {navLinks.map((link, idx) => {
+            const isActive = active === idx
+            return (
+              <button
+                key={link.name}
+                onClick={() => setActive(idx)}
+                style={{ transitionDelay: `${idx * 30}ms` }}
+                className={`nav-item w-full flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium ${
+                  isActive ? t.navActive : t.navInactive
+                } ${isActive ? `is-active ${theme === 'dark' ? 'dark-glow' : ''}` : ''}`}
+              >
+                <span className={`nav-active-line ${theme === 'dark' ? 'bg-black' : 'bg-white'}`} />
+                <span
+                  className={`nav-item-icon h-8 w-8 rounded-lg flex items-center justify-center text-xs font-semibold ${
+                    isActive ? t.navIconActive : t.navIconInactive
+                  }`}
+                >
+                  {link.icon}
+                </span>
+                <span>{link.name}</span>
+                <span className={`nav-indicator ${theme === 'dark' ? 'bg-black' : 'bg-white'}`} />
+              </button>
+            )
+          })}
+        </div>
+      </div>
+
+      <div className="mt-8 px-6">
+        <div className={`rounded-2xl border p-4 ${t.border} ${t.cardSoft}`}>
+          <div className="flex items-center justify-between">
+            <p className={`text-xs uppercase tracking-[0.2em] ${t.textSubtle}`}>Status</p>
+            <span className="flex items-center gap-2">
+              <span className="h-2 w-2 rounded-full bg-emerald-400" />
+              <span className={`text-xs ${t.textMuted}`}>Operational</span>
+            </span>
+          </div>
+          <p className={`mt-3 text-xs ${t.textMuted}`}>Reporting cadence: Weekly</p>
+        </div>
+      </div>
+
+      <div className="mt-auto px-6 pb-8">
+        <div className={`rounded-2xl border p-4 text-xs leading-relaxed ${t.border} ${t.cardSoft} ${t.textMuted}`}>
+          Keep your team aligned with structured tasks and weekly reviews.
+        </div>
+      </div>
+    </aside>
+  )
+}
+
+const Navbar = ({ theme, setTheme, onLogout }) => {
+  const t = getTheme(theme)
+
+  return (
+    <nav className={`w-full border-b ${t.border} ${theme === 'dark' ? 'bg-[#0e1117]/90' : 'bg-white/90'} backdrop-blur`}>
+      <div className="h-16 flex items-center justify-between px-8">
+        <div className="flex items-center gap-3">
+          <div>
+            <h1 className={`text-lg font-semibold ${t.text}`}>Admin Dashboard</h1>
+            <p className={`text-xs ${t.textMuted}`}>Manage operations and team progress</p>
+          </div>
+          <span className={`badge-shimmer hidden sm:inline-flex items-center rounded-full px-3 py-1 text-[10px] uppercase tracking-widest border ${t.border} ${t.textMuted}`}>
+            Activity � Live
+          </span>
+        </div>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+            className={`px-3 py-2 rounded-lg text-xs font-semibold border transition ${t.buttonPrimary}`}
+            title="Toggle theme"
+          >
+            {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
+          </button>
+          <div className={`h-9 w-9 rounded-xl flex items-center justify-center text-xs font-bold ${t.chip}`}>
+            AD
+          </div>
+          <button
+            onClick={onLogout}
+            className={`px-4 py-2 rounded-lg text-xs font-semibold border transition ${t.buttonOutline}`}
+          >
+            Logout
+          </button>
+        </div>
+      </div>
+      <div className={`px-8 pb-3 pt-1 ${theme === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}>
+        <div className={`flex flex-wrap gap-3 text-[11px] uppercase tracking-[0.2em] ${t.textSubtle}`}>
+          <span className="rounded-full border px-3 py-1">KPI � 92% On-time</span>
+          <span className="rounded-full border px-3 py-1">Risk � Low</span>
+          <span className="rounded-full border px-3 py-1">Queue � 8 Items</span>
+        </div>
+      </div>
+    </nav>
+  )
+}
 
 const AdminDashboard = (props) => {
   const [active, setActive] = useState(0)
   const [theme, setTheme] = useState('light')
+  const t = getTheme(theme)
 
-  const lightBg = 'bg-white/90 backdrop-blur-md'
-  const darkBg = 'bg-neutral-950/90'
-  const lightText = 'text-neutral-900'
-  const darkText = 'text-neutral-100'
-  const lightHeading = 'text-neutral-900'
-  const darkHeading = 'text-white'
-  const borderLight = 'border-neutral-200'
-  const borderDark = 'border-neutral-800'
+  const quickStats = [
+    { label: 'Team Health', value: '98%' },
+    { label: 'Open Reviews', value: '6' },
+    { label: 'Pending', value: '4' },
+  ]
 
   let pageContent
   if (active === 0) {
     pageContent = (
       <>
-        <div className="mb-8">
-          <h2 className={`text-3xl font-bold ${theme === 'dark' ? darkHeading : lightHeading} mb-2`}>
-            Welcome, Admin!
-          </h2>
-          <p className={`text-lg ${theme === 'dark' ? 'text-neutral-300' : 'text-neutral-600'}`}>
-            Manage your team and monitor overall performance.
-          </p>
+        <div className={`mb-6 rounded-2xl border ${t.border} ${t.cardSoft} px-5 py-4 card-hover ${theme === 'dark' ? 'dark' : ''}`}>
+          <div className="flex flex-wrap gap-4">
+            {quickStats.map((stat) => (
+              <div key={stat.label} className="min-w-[140px]">
+                <p className={`text-[10px] uppercase tracking-[0.2em] ${t.textSubtle}`}>{stat.label}</p>
+                <p className={`mt-2 text-xl font-semibold ${t.text}`}>{stat.value}</p>
+              </div>
+            ))}
+          </div>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+
+        <div className="mb-10">
+          <h2 className={`text-3xl font-semibold ${t.text}`}>Welcome, Admin</h2>
+          <p className={`mt-2 ${t.textMuted}`}>Review activity, manage assignments, and keep the team aligned.</p>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10 stagger">
           {[
             { label: 'Employees', value: 12 },
             { label: 'Total Tasks', value: 45 },
             { label: 'Completed', value: 32 },
             { label: 'Failed', value: 8 },
-          ].map((stat) => (
+          ].map((stat, idx) => (
             <div
               key={stat.label}
-              className={`rounded-2xl p-6 shadow-lg flex flex-col items-center transition-all duration-300 border ${
-                theme === 'dark'
-                  ? 'bg-gradient-to-br from-neutral-950 to-neutral-900 text-neutral-100 border-neutral-800 hover:border-neutral-600'
-                  : 'bg-gradient-to-br from-white to-neutral-100 text-neutral-900 border-neutral-200 hover:border-neutral-400'
-              }`}
+              style={{ animationDelay: `${idx * 60}ms` }}
+              className={`rounded-2xl p-6 border ${t.border} ${t.cardSoft} card-hover ${theme === 'dark' ? 'dark' : ''}`}
             >
-              <span className="text-4xl font-bold">{stat.value}</span>
-              <span className="mt-2 text-lg font-semibold">{stat.label}</span>
+              <p className={`text-xs uppercase tracking-[0.2em] ${t.textSubtle}`}>{stat.label}</p>
+              <p className={`mt-4 text-3xl font-semibold ${t.text}`}>{stat.value}</p>
             </div>
           ))}
         </div>
-        <div className={`${theme === 'dark' ? darkBg : lightBg} rounded-2xl p-6 shadow-md border ${theme === 'dark' ? borderDark : borderLight}`}>
-          <h3 className={`text-xl font-bold ${theme === 'dark' ? darkHeading : lightHeading} mb-4`}>Recent Activity</h3>
-          <ul className={`space-y-2 ${theme === 'dark' ? darkText : 'text-neutral-900'}`}>
-            <li>👤 New employee "John Doe" joined the team</li>
-            <li>✅ Task "Update website" completed by Sarah</li>
-            <li>📝 New task "Fix bugs" assigned to Mike</li>
-            <li>⚠️ Task "Client meeting" marked as failed</li>
-            <li>📊 Weekly performance report generated</li>
+
+        <div className={`rounded-2xl border ${t.border} ${t.card} p-6 panel-reveal card-hover ${theme === 'dark' ? 'dark' : ''}`}>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className={`text-lg font-semibold ${t.text}`}>Recent Activity</h3>
+            <span className={`text-xs ${t.textMuted}`}>Last 7 days</span>
+          </div>
+          <ul className="divide-y divide-slate-100/30">
+            {[
+              'New employee "John Doe" joined the team',
+              'Task "Update website" completed by Sarah',
+              'New task "Fix bugs" assigned to Mike',
+              'Task "Client meeting" marked as failed',
+              'Weekly performance report generated',
+            ].map((item) => (
+              <li key={item} className={`py-3 text-sm ${t.textMuted}`}>
+                {item}
+              </li>
+            ))}
           </ul>
         </div>
       </>
     )
   } else if (active === 1) {
-    pageContent = <CreateTask />
+    pageContent = <CreateTask themeMode={theme} />
   } else if (active === 2) {
-    pageContent = <AllTask />
+    pageContent = <AllTask themeMode={theme} />
   }
 
   return (
     <div className={theme === 'dark' ? 'dark' : ''}>
-      <div
-        className={`flex h-screen w-full ${
-          theme === 'dark'
-            ? 'bg-gradient-to-br from-black via-neutral-900 to-neutral-950'
-            : 'bg-gradient-to-br from-white via-neutral-100 to-neutral-200'
-        } transition-colors duration-500`}
-      >
+      <div className={`flex h-screen w-full ${t.bgPage} transition-colors duration-300`}>
         <Sidebar active={active} setActive={setActive} theme={theme} />
         <div className="flex-1 flex flex-col">
           <Navbar theme={theme} setTheme={setTheme} onLogout={() => props.changeUser('')} />
-          <main className="flex-1 flex flex-col items-center justify-start p-8 overflow-y-auto">
-            <div
-              className={`w-full max-w-5xl ${theme === 'dark' ? darkBg : lightBg} rounded-3xl shadow-2xl p-8 mt-8 border ${
-                theme === 'dark' ? 'border-neutral-800' : 'border-neutral-200'
-              } transition-all duration-300 group relative ${theme === 'dark' ? darkText : lightText}`}
-            >
-              <div className="absolute -inset-1 rounded-3xl pointer-events-none group-hover:shadow-[0_0_30px_rgba(0,0,0,0.25)] transition-all duration-300" />
-              {pageContent}
+          <main className="flex-1 overflow-y-auto p-8">
+            <div className={`w-full max-w-6xl rounded-3xl border ${t.border} ${t.bgPanel} p-8 shadow-[0_20px_60px_rgba(15,23,42,0.08)] ${t.text} content-texture ${theme === 'dark' ? 'dark' : ''}`}>
+              <div key={active} className="page-fade">
+                {pageContent}
+              </div>
             </div>
           </main>
         </div>

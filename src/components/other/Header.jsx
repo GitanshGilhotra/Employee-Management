@@ -8,12 +8,12 @@ const Header = (props) => {
 
   return (
     <div className="flex items-end justify-between">
-      <h1 className="text-2xl font-medium text-neutral-900 dark:text-neutral-100">
+      <h1 className="text-2xl font-medium text-slate-900 dark:text-white">
         Hello <br /> <span className="text-3xl font-semibold">username 👋</span>
       </h1>
       <button
         onClick={logOutUser}
-        className="bg-black text-base font-medium text-white px-5 py-2 rounded-sm border border-black hover:bg-neutral-800 transition dark:bg-white dark:text-black dark:border-white dark:hover:bg-neutral-200"
+        className="bg-slate-900 text-base font-medium text-white px-5 py-2 rounded-lg border border-slate-900 hover:bg-black transition dark:bg-white dark:text-black"
       >
         Log Out
       </button>

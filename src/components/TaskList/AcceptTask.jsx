@@ -1,8 +1,10 @@
 import React, { useContext } from 'react'
 import { AuthContext } from '../../context/AuthProvider'
+import { getTheme } from '../../theme'
 
-const AcceptTask = ({ data, taskIndex }) => {
+const AcceptTask = ({ data, taskIndex, themeMode = 'light' }) => {
   const [userData, setUserData] = useContext(AuthContext)
+  const t = getTheme(themeMode)
 
   const handleStatusChange = (status) => {
     const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'))
@@ -41,24 +43,18 @@ const AcceptTask = ({ data, taskIndex }) => {
   }
 
   return (
-    <div className="flex-shrink-0 h-full w-[300px] p-5 rounded-xl border border-neutral-200 bg-white/90 text-neutral-900 shadow-md dark:border-neutral-800 dark:bg-neutral-900/80 dark:text-neutral-100">
+    <div className={`flex-shrink-0 h-full w-[300px] rounded-2xl border ${t.border} ${t.card} p-5 shadow-sm panel-reveal`}>
       <div className="flex justify-between items-center">
-        <h3 className="bg-neutral-900 text-white text-xs px-3 py-1 rounded-full dark:bg-white dark:text-black">{data.category}</h3>
-        <h4 className="text-xs text-neutral-600 dark:text-neutral-300">{data.taskDate}</h4>
+        <span className={`text-xs font-semibold uppercase tracking-widest ${t.textMuted}`}>{data.category}</span>
+        <span className={`text-xs ${t.textSubtle}`}>{data.taskDate}</span>
       </div>
-      <h2 className="mt-5 text-2xl font-semibold">{data.taskTitle}</h2>
-      <p className="text-sm mt-2 text-neutral-700 dark:text-neutral-300">{data.taskDescription}</p>
+      <h2 className={`mt-5 text-lg font-semibold ${t.text}`}>{data.taskTitle}</h2>
+      <p className={`text-sm mt-2 ${t.textMuted}`}>{data.taskDescription}</p>
       <div className="flex justify-between mt-6 gap-2">
-        <button
-          className="bg-black text-white rounded font-medium py-1 px-2 text-xs border border-black hover:bg-neutral-800 transition dark:bg-white dark:text-black dark:border-white dark:hover:bg-neutral-200"
-          onClick={() => handleStatusChange('completed')}
-        >
+        <button className={`rounded-lg font-medium py-2 px-3 text-xs border ${t.buttonPrimary}`} onClick={() => handleStatusChange('completed')}>
           Mark as Completed
         </button>
-        <button
-          className="bg-white text-black rounded font-medium py-1 px-2 text-xs border border-neutral-300 hover:border-neutral-600 transition dark:bg-neutral-800 dark:text-white dark:border-neutral-700 dark:hover:border-neutral-500"
-          onClick={() => handleStatusChange('failed')}
-        >
+        <button className={`rounded-lg font-medium py-2 px-3 text-xs border ${t.buttonOutline}`} onClick={() => handleStatusChange('failed')}>
           Mark as Failed
         </button>
       </div>
