@@ -11,15 +11,31 @@ import attendanceRoutes from './routes/attendanceRoutes.js'
 dns.setServers(['1.1.1.1', '8.8.8.8'])
 
 const app = express()
-const CLIENT_ORIGIN =
-  process.env.CLIENT_ORIGIN ||
-  (process.env.NODE_ENV === 'production'
-    ? 'https://employee-management-client-gilt.vercel.app'
-    : 'http://localhost:5173')
+const DEFAULT_ORIGINS = [
+  'https://employee-management-client-gilt.vercel.app',
+  'http://localhost:5173',
+]
+const CLIENT_ORIGIN = process.env.CLIENT_ORIGIN
+  ? process.env.CLIENT_ORIGIN.split(',').map((origin) => origin.trim())
+  : DEFAULT_ORIGINS
 
-app.use(cors({ origin: CLIENT_ORIGIN, credentials: true }))
+app.set('trust proxy', 1)
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true)
+      if (CLIENT_ORIGIN.includes(origin)) return callback(null, true)
+      return callback(new Error('Not allowed by CORS'))
+    },
+    credentials: true,
+  })
+)
 app.use(express.json())
 app.use(cookieParser())
+
+app.get('/', (req, res) => {
+  res.json({ ok: true, message: 'Employee Management API' })
+})
 
 app.get('/api/health', (req, res) => {
   res.json({ ok: true, status: 'healthy' })
