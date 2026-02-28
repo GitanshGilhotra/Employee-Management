@@ -11,6 +11,7 @@ import attendanceRoutes from './routes/attendanceRoutes.js'
 dns.setServers(['1.1.1.1', '8.8.8.8'])
 
 const app = express()
+// when no CLIENT_ORIGIN env var is provided, these defaults are used
 const DEFAULT_ORIGINS = [
   'https://employee-management-client-gilt.vercel.app',
   'http://localhost:5173',
