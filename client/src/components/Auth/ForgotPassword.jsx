@@ -1,6 +1,7 @@
-import React, { useState } from 'react'
+﻿import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import AuthLayout from './AuthLayout'
+import { apiUrl } from '../../utils/api'
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState('')
@@ -12,7 +13,7 @@ const ForgotPassword = () => {
     setSubmitting(true)
     setMessage('')
     try {
-      const res = await fetch('/api/auth/forgot-password', {
+      const res = await fetch(apiUrl('/api/auth/forgot-password'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),
@@ -34,7 +35,7 @@ const ForgotPassword = () => {
   return (
     <AuthLayout
       title="Reset password"
-      subtitle="We�ll email you a secure reset link."
+      subtitle="We’ll email you a secure reset link."
       footer={
         <Link to="/" className="text-slate-600 hover:text-slate-900">
           Back to login
@@ -73,3 +74,4 @@ const ForgotPassword = () => {
 }
 
 export default ForgotPassword
+

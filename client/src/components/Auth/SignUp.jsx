@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import AuthLayout from './AuthLayout'
+import { apiUrl } from '../../utils/api'
 
 const SignUp = () => {
   const [form, setForm] = useState({ name: '', email: '', password: '' })
@@ -20,7 +21,7 @@ const SignUp = () => {
     setSubmitting(true)
     setMessage('')
     try {
-      const res = await fetch('/api/auth/signup', {
+      const res = await fetch(apiUrl('/api/auth/signup'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),
@@ -44,7 +45,7 @@ const SignUp = () => {
     setSubmitting(true)
     setMessage('')
     try {
-      const res = await fetch('/api/auth/verify-otp', {
+      const res = await fetch(apiUrl('/api/auth/verify-otp'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: form.email, otp }),

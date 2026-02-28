@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { getTheme } from '../../theme'
+import { apiUrl } from '../../utils/api'
 
 const EmployeeAttendance = ({ themeMode = 'light' }) => {
   const t = getTheme(themeMode)
@@ -12,7 +13,7 @@ const EmployeeAttendance = ({ themeMode = 'light' }) => {
   const loadEntries = async () => {
     try {
       setLoading(true)
-      const res = await fetch('/api/attendance/me', { credentials: 'include' })
+      const res = await fetch(apiUrl('/api/attendance/me'), { credentials: 'include' })
       if (!res.ok) return
       const data = await res.json()
       setEntries(data)
@@ -27,7 +28,7 @@ const EmployeeAttendance = ({ themeMode = 'light' }) => {
 
   const submitAttendance = async () => {
     setMessage('')
-    const res = await fetch('/api/attendance', {
+    const res = await fetch(apiUrl('/api/attendance'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',

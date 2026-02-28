@@ -3,6 +3,7 @@ import TaskList from '../TaskList/TaskList'
 import EmployeeAttendance from '../attendance/EmployeeAttendance'
 import { getTheme } from '../../theme'
 import Skeleton from '../ui/Skeleton'
+import { apiUrl } from '../../utils/api'
 
 const navLinks = [
   { name: 'Overview', icon: 'O' },
@@ -148,7 +149,7 @@ const EmployeeDashboard = (props) => {
 
   const loadStats = async () => {
     try {
-      const res = await fetch('/api/stats/me', { credentials: 'include' })
+      const res = await fetch(apiUrl('/api/stats/me'), { credentials: 'include' })
       if (!res.ok) return
       const data = await res.json()
       setStats(data)
@@ -165,7 +166,7 @@ const EmployeeDashboard = (props) => {
     const loadTasks = async () => {
       try {
         setTasksLoading(true)
-        const res = await fetch('/api/tasks/me', { credentials: 'include' })
+        const res = await fetch(apiUrl('/api/tasks/me'), { credentials: 'include' })
         if (!res.ok) return
         const data = await res.json()
         setTasks(data)
@@ -177,7 +178,7 @@ const EmployeeDashboard = (props) => {
   }, [])
 
   const handleStatusChange = async (taskId, status) => {
-    const res = await fetch(`/api/tasks/${taskId}/status`, {
+    const res = await fetch(apiUrl(`/api/tasks/${taskId}/status`), {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',

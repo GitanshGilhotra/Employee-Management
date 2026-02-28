@@ -8,6 +8,7 @@ import SignUp from './components/Auth/SignUp'
 import ResetPassword from './components/Auth/ResetPassword'
 import NotFound from './components/Auth/NotFound'
 import { AuthContext } from './context/AuthProvider'
+import { apiUrl } from './utils/api'
 
 const App = () => {
   const [user, setUser] = React.useState(null)
@@ -16,7 +17,7 @@ const App = () => {
   const [userData] = React.useContext(AuthContext)
 
   const loadSession = React.useCallback(async () => {
-    const res = await fetch('/api/auth/me', { credentials: 'include' })
+    const res = await fetch(apiUrl('/api/auth/me'), { credentials: 'include' })
     if (res.ok) {
       const data = await res.json()
       setUser(data.role)
@@ -31,7 +32,7 @@ const App = () => {
       try {
         const ok = await loadSession()
         if (!ok) {
-          const refresh = await fetch('/api/auth/refresh', { method: 'POST', credentials: 'include' })
+          const refresh = await fetch(apiUrl('/api/auth/refresh'), { method: 'POST', credentials: 'include' })
           if (refresh.ok) {
             await loadSession()
           } else {
@@ -59,7 +60,7 @@ const App = () => {
   }, [userData, user])
 
   const handleLogin = async (email, password) => {
-    const res = await fetch('/api/auth/login', {
+    const res = await fetch(apiUrl('/api/auth/login'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
@@ -76,7 +77,7 @@ const App = () => {
 
   const handleLogout = async () => {
     try {
-      await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' })
+      await fetch(apiUrl('/api/auth/logout'), { method: 'POST', credentials: 'include' })
     } finally {
       setUser(null)
       setLoggedInUserData(null)

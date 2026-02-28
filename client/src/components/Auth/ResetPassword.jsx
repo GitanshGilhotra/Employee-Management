@@ -1,6 +1,7 @@
-import React, { useState } from 'react'
+﻿import React, { useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import AuthLayout from './AuthLayout'
+import { apiUrl } from '../../utils/api'
 
 const ResetPassword = () => {
   const [searchParams] = useSearchParams()
@@ -16,7 +17,7 @@ const ResetPassword = () => {
     setSubmitting(true)
     setMessage('')
     try {
-      const res = await fetch('/api/auth/reset-password', {
+      const res = await fetch(apiUrl('/api/auth/reset-password'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, token, password }),
@@ -86,3 +87,4 @@ const ResetPassword = () => {
 }
 
 export default ResetPassword
+

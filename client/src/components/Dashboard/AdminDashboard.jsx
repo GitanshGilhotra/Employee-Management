@@ -3,6 +3,7 @@ import CreateTask from '../other/CreateTask'
 import AllTask from '../other/AllTask'
 import AdminAttendance from '../attendance/AdminAttendance'
 import { getTheme } from '../../theme'
+import { apiUrl } from '../../utils/api'
 
 const navLinks = [
   { name: 'Overview', icon: 'O' },
@@ -139,7 +140,7 @@ const AdminDashboard = (props) => {
   useEffect(() => {
     const loadStats = async () => {
       try {
-        const res = await fetch('/api/stats/admin', { credentials: 'include' })
+        const res = await fetch(apiUrl('/api/stats/admin'), { credentials: 'include' })
         if (!res.ok) return
         const data = await res.json()
         setStats(data)
@@ -154,7 +155,7 @@ const AdminDashboard = (props) => {
     const loadEmployees = async () => {
       try {
         setEmployeesLoading(true)
-        const res = await fetch('/api/employees', { credentials: 'include' })
+        const res = await fetch(apiUrl('/api/employees'), { credentials: 'include' })
         if (!res.ok) return
         const data = await res.json()
         setEmployees(data)

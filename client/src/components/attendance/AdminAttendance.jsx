@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { getTheme } from '../../theme'
+import { apiUrl } from '../../utils/api'
 
 const AdminAttendance = ({ themeMode = 'light' }) => {
   const t = getTheme(themeMode)
@@ -10,7 +11,7 @@ const AdminAttendance = ({ themeMode = 'light' }) => {
     const loadEntries = async () => {
       try {
         setLoading(true)
-        const res = await fetch('/api/attendance', { credentials: 'include' })
+        const res = await fetch(apiUrl('/api/attendance'), { credentials: 'include' })
         if (!res.ok) return
         const data = await res.json()
         setEntries(data)

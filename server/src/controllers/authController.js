@@ -64,21 +64,23 @@ const sendResetEmail = async (email, resetUrl) => {
 
 const accessCookieName = () => process.env.COOKIE_NAME || 'ems_access'
 const refreshCookieName = () => process.env.REFRESH_COOKIE_NAME || 'ems_refresh'
+const cookieSecure = () => process.env.COOKIE_SECURE === 'true'
+const cookieSameSite = () => process.env.COOKIE_SAMESITE || 'lax'
 
 const tokenCookieOptions = () => {
   const cookieDays = Number(process.env.COOKIE_DAYS || 7)
   return {
     httpOnly: true,
-    sameSite: 'lax',
-    secure: false,
+    sameSite: cookieSameSite(),
+    secure: cookieSecure(),
     maxAge: cookieDays * 24 * 60 * 60 * 1000,
   }
 }
 
 const clearCookieOptions = () => ({
   httpOnly: true,
-  sameSite: 'lax',
-  secure: false,
+  sameSite: cookieSameSite(),
+  secure: cookieSecure(),
 })
 
 const signAccessToken = (payload) =>

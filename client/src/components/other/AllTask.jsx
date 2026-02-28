@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { getTheme } from '../../theme'
+import { apiUrl } from '../../utils/api'
 
 const AllTask = ({ themeMode = 'light' }) => {
   const t = getTheme(themeMode)
@@ -10,7 +11,7 @@ const AllTask = ({ themeMode = 'light' }) => {
     const loadTasks = async () => {
       try {
         setLoading(true)
-        const res = await fetch('/api/tasks', { credentials: 'include' })
+        const res = await fetch(apiUrl('/api/tasks'), { credentials: 'include' })
         if (!res.ok) return
         const data = await res.json()
         const map = new Map()
