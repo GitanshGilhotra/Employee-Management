@@ -2,7 +2,7 @@ import User from '../models/User.js'
 
 export const listEmployees = async (req, res) => {
   try {
-    const users = await User.find({}, 'name email').sort({ name: 1 })
+    const users = await User.find({ isVerified: true }, 'name email').sort({ name: 1 })
     return res.json(
       users.map((user) => ({
         id: user._id,
