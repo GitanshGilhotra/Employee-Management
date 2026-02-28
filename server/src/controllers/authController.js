@@ -5,15 +5,19 @@ import jwt from 'jsonwebtoken'
 import User from '../models/User.js'
 import { setSession, getSession, delSession } from '../utils/sessionStore.js'
 
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST,
-  port: Number(process.env.SMTP_PORT || 587),
-  secure: false,
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
-  },
-})
+const emailEnabled = () => process.env.SMTP_DISABLED !== 'true' && Boolean(process.env.SMTP_HOST)
+
+const transporter = emailEnabled()
+  ? nodemailer.createTransport({
+      host: process.env.SMTP_HOST,
+      port: Number(process.env.SMTP_PORT || 587),
+      secure: false,
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS,
+      },
+    })
+  : null
 
 const passwordStrongEnough = (password) => {
   const minLength = 8
@@ -33,11 +37,28 @@ const generateOtp = () => String(Math.floor(100000 + Math.random() * 900000))
 const hashOtp = (otp) => crypto.createHash('sha256').update(otp).digest('hex')
 
 const sendOtpEmail = async (email, otp) => {
+  if (!emailEnabled() || !transporter) {
+    console.warn(`SMTP disabled or missing. OTP for ${email}: ${otp}`)
+    return
+  }
   await transporter.sendMail({
     from: process.env.SMTP_FROM,
     to: email,
     subject: 'Verify your account',
     text: `Your verification code is ${otp}. It expires in ${otpTtlMinutes()} minutes.`,
+  })
+}
+
+const sendResetEmail = async (email, resetUrl) => {
+  if (!emailEnabled() || !transporter) {
+    console.warn(`SMTP disabled or missing. Reset link for ${email}: ${resetUrl}`)
+    return
+  }
+  await transporter.sendMail({
+    from: process.env.SMTP_FROM,
+    to: email,
+    subject: 'Reset your password',
+    text: `Use the following link to reset your password: ${resetUrl}`,
   })
 }
 
@@ -53,6 +74,12 @@ const tokenCookieOptions = () => {
     maxAge: cookieDays * 24 * 60 * 60 * 1000,
   }
 }
+
+const clearCookieOptions = () => ({
+  httpOnly: true,
+  sameSite: 'lax',
+  secure: false,
+})
 
 const signAccessToken = (payload) =>
   jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: process.env.ACCESS_TOKEN_EXPIRES || '15m' })
@@ -87,8 +114,8 @@ const clearTokens = async (req, res) => {
       await delSession(key)
     } catch {}
   }
-  res.clearCookie(accessCookieName(), tokenCookieOptions())
-  res.clearCookie(refreshCookieName(), tokenCookieOptions())
+  res.clearCookie(accessCookieName(), clearCookieOptions())
+  res.clearCookie(refreshCookieName(), clearCookieOptions())
 }
 
 const getAccessToken = (req) => req.cookies?.[accessCookieName()]
@@ -296,12 +323,7 @@ export const forgotPassword = async (req, res) => {
 
     const resetUrl = `${process.env.CLIENT_ORIGIN}/reset-password?token=${token}&email=${encodeURIComponent(email)}`
 
-    await transporter.sendMail({
-      from: process.env.SMTP_FROM,
-      to: email,
-      subject: 'Reset your password',
-      text: `Use the following link to reset your password: ${resetUrl}`,
-    })
+    await sendResetEmail(email, resetUrl)
 
     return res.status(200).json({ message: 'If the email exists, a reset link has been sent.' })
   } catch (err) {

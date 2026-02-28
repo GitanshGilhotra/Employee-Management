@@ -17,6 +17,13 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 )
 
+userSchema.pre('validate', function (next) {
+  if (this.name && !this.nameLower) {
+    this.nameLower = this.name.trim().toLowerCase()
+  }
+  next()
+})
+
 const User = mongoose.model('User', userSchema)
 
 export default User
