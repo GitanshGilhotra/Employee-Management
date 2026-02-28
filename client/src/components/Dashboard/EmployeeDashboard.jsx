@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import TaskList from '../TaskList/TaskList'
 import { getTheme } from '../../theme'
 import Skeleton from '../ui/Skeleton'
@@ -105,7 +105,7 @@ const Navbar = ({ theme, setTheme, onLogout }) => {
             EM
           </div>
           <button
-            onClick={onLogout}
+            onClick={() => (onLogout ? onLogout() : null)}
             className={`px-4 py-2 rounded-lg text-xs font-semibold border transition ${t.buttonOutline}`}
           >
             Logout
@@ -126,13 +126,28 @@ const Navbar = ({ theme, setTheme, onLogout }) => {
 const EmployeeDashboard = (props) => {
   const [active, setActive] = useState(0)
   const [theme, setTheme] = useState('light')
+  const [stats, setStats] = useState(null)
   const t = getTheme(theme)
   const isLoading = !props.data
 
+  useEffect(() => {
+    const loadStats = async () => {
+      try {
+        const res = await fetch('/api/stats/me', { credentials: 'include' })
+        if (!res.ok) return
+        const data = await res.json()
+        setStats(data)
+      } catch {
+        setStats(null)
+      }
+    }
+    loadStats()
+  }, [])
+
   const quickStats = [
     { label: 'Priority', value: 'Focused' },
-    { label: 'Tasks Due', value: '3' },
-    { label: 'Reviews', value: '2' },
+    { label: 'Tasks Due', value: stats?.active ?? 0 },
+    { label: 'Reviews', value: stats?.completed ?? 0 },
   ]
 
   const renderSkeletonStats = () => (
@@ -156,13 +171,27 @@ const EmployeeDashboard = (props) => {
     pageContent = (
       <>
         <div className={`mb-6 rounded-2xl border ${t.border} ${t.cardSoft} px-5 py-4 card-hover ${theme === 'dark' ? 'dark' : ''}`}>
-          <div className="flex flex-wrap gap-4">
+          <div className="flex flex-wrap items-center gap-4">
             {quickStats.map((stat) => (
               <div key={stat.label} className="min-w-[140px]">
                 <p className={`text-[10px] uppercase tracking-[0.2em] ${t.textSubtle}`}>{stat.label}</p>
                 <p className={`mt-2 text-xl font-semibold ${t.text}`}>{stat.value}</p>
               </div>
             ))}
+            <div className="ml-auto flex gap-2">
+              <button
+                className={`rounded-lg px-4 py-2 text-xs font-semibold border ${t.buttonPrimary}`}
+                onClick={() => setActive(1)}
+              >
+                View Tasks
+              </button>
+              <button
+                className={`rounded-lg px-4 py-2 text-xs font-semibold border ${t.buttonOutline}`}
+                onClick={() => setActive(2)}
+              >
+                Profile
+              </button>
+            </div>
           </div>
         </div>
 
@@ -170,7 +199,7 @@ const EmployeeDashboard = (props) => {
           <h2 className={`text-3xl font-semibold ${t.text}`}>
             Welcome back, {props.data?.firstName || 'Employee'}
           </h2>
-          <p className={`mt-2 ${t.textMuted}`}>Here's a quick snapshot of your tasks.</p>
+          <p className={`mt-2 ${t.textMuted}`}>Here’s a focused view of your current work.</p>
         </div>
 
         {isLoading ? (
@@ -178,10 +207,10 @@ const EmployeeDashboard = (props) => {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10 stagger">
             {[
-              { label: 'New Tasks', value: props.data?.taskCounts?.newTask || 0 },
-              { label: 'Active Tasks', value: props.data?.taskCounts?.active || 0 },
-              { label: 'Completed', value: props.data?.taskCounts?.completed || 0 },
-              { label: 'Failed', value: props.data?.taskCounts?.failed || 0 },
+              { label: 'New Tasks', value: stats?.newTasks ?? 0 },
+              { label: 'Active Tasks', value: stats?.active ?? 0 },
+              { label: 'Completed', value: stats?.completed ?? 0 },
+              { label: 'Failed', value: stats?.failed ?? 0 },
             ].map((stat, idx) => (
               <div
                 key={stat.label}
@@ -204,16 +233,16 @@ const EmployeeDashboard = (props) => {
           ) : (
             <>
               <div className={`rounded-2xl border ${t.border} ${t.card} p-6 panel-reveal card-hover ${theme === 'dark' ? 'dark' : ''}`}>
-                <h3 className={`text-lg font-semibold ${t.text}`}>Today's Progress</h3>
+                <h3 className={`text-lg font-semibold ${t.text}`}>Today’s Progress</h3>
                 <div className="mt-4">
                   <div className="flex justify-between text-sm">
                     <span className={t.textMuted}>Tasks Completed</span>
-                    <span className={t.text}>{props.data?.taskCounts?.completed || 0}</span>
+                    <span className={t.text}>{stats?.completed ?? 0}</span>
                   </div>
                   <div className={`mt-3 h-2 w-full rounded-full ${theme === 'dark' ? 'bg-white/10' : 'bg-slate-200'}`}>
                     <div
                       className={`h-2 rounded-full ${theme === 'dark' ? 'bg-white' : 'bg-slate-900'}`}
-                      style={{ width: `${Math.min((props.data?.taskCounts?.completed || 0) * 20, 100)}%` }}
+                      style={{ width: `${Math.min((stats?.completed ?? 0) * 20, 100)}%` }}
                     ></div>
                   </div>
                 </div>
@@ -222,10 +251,10 @@ const EmployeeDashboard = (props) => {
               <div className={`rounded-2xl border ${t.border} ${t.card} p-6 panel-reveal card-hover ${theme === 'dark' ? 'dark' : ''}`}>
                 <h3 className={`text-lg font-semibold ${t.text}`}>Quick Actions</h3>
                 <div className="mt-4 space-y-3">
-                  <button className={`w-full rounded-lg px-4 py-3 text-sm font-semibold border ${t.buttonPrimary}`}>
+                  <button className={`w-full rounded-lg px-4 py-3 text-sm font-semibold border ${t.buttonPrimary}`} onClick={() => setActive(1)}>
                     View All Tasks
                   </button>
-                  <button className={`w-full rounded-lg px-4 py-3 text-sm font-semibold border ${t.buttonGhost}`}>
+                  <button className={`w-full rounded-lg px-4 py-3 text-sm font-semibold border ${t.buttonGhost}`} onClick={() => setActive(1)}>
                     Mark Task Complete
                   </button>
                 </div>
@@ -267,9 +296,9 @@ const EmployeeDashboard = (props) => {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8 stagger">
             {[
-              { label: 'In Progress', value: props.data?.taskCounts?.active || 0 },
-              { label: 'Completed', value: props.data?.taskCounts?.completed || 0 },
-              { label: 'Failed', value: props.data?.taskCounts?.failed || 0 },
+              { label: 'In Progress', value: stats?.active ?? 0 },
+              { label: 'Completed', value: stats?.completed ?? 0 },
+              { label: 'Failed', value: stats?.failed ?? 0 },
             ].map((stat, idx) => (
               <div
                 key={stat.label}
@@ -367,7 +396,7 @@ const EmployeeDashboard = (props) => {
       <div className={`flex h-screen w-full ${t.bgPage} transition-colors duration-300`}>
         <Sidebar active={active} setActive={setActive} theme={theme} />
         <div className="flex-1 flex flex-col">
-          <Navbar theme={theme} setTheme={setTheme} onLogout={() => props.changeUser('')} />
+          <Navbar theme={theme} setTheme={setTheme} onLogout={props.onLogout} />
           <main className="flex-1 overflow-y-auto p-8">
             <div className={`w-full max-w-6xl rounded-3xl border ${t.border} ${t.bgPanel} p-8 shadow-[0_20px_60px_rgba(15,23,42,0.08)] ${t.text} content-texture ${theme === 'dark' ? 'dark' : ''}`}>
               <div key={active} className="page-fade">
@@ -382,5 +411,3 @@ const EmployeeDashboard = (props) => {
 }
 
 export default EmployeeDashboard
-
-
