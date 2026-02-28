@@ -6,20 +6,25 @@ const FailedTask = ({ data, taskIndex, themeMode = 'light' }) => {
   const [userData, setUserData] = useContext(AuthContext)
   const t = getTheme(themeMode)
 
-  const handleRestore = () => {\r\n    if (!window.confirm('Restore this failed task back to active?')) return
+  const handleRestore = () => {
+    if (!window.confirm('Restore this failed task back to active?')) return
+
     const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'))
     if (!loggedInUser || !userData) return
     const user = userData.find((u) => u.email === loggedInUser.data.email)
     if (!user) return
+
     const updatedTasks = user.tasks.map((task, idx) => {
       if (idx === taskIndex) {
         return { ...task, failed: false, active: true }
       }
       return task
     })
+
     let { active, completed, failed, newTask } = user.taskCounts
     failed -= 1
     active += 1
+
     const updatedUser = {
       ...user,
       tasks: updatedTasks,
@@ -52,4 +57,3 @@ const FailedTask = ({ data, taskIndex, themeMode = 'light' }) => {
 }
 
 export default FailedTask
-

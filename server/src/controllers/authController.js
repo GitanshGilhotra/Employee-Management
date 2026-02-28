@@ -3,7 +3,7 @@ import crypto from 'crypto'
 import nodemailer from 'nodemailer'
 import jwt from 'jsonwebtoken'
 import User from '../models/User.js'
-import { redis } from '../utils/redisClient.js'
+import { setSession, getSession, delSession } from '../utils/sessionStore.js'
 
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,
@@ -43,14 +43,19 @@ const signAccessToken = (payload) =>
 const signRefreshToken = (payload) =>
   jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: process.env.REFRESH_TOKEN_EXPIRES || '7d' })
 
+const refreshTtlSeconds = () => {
+  const raw = process.env.REFRESH_TTL_SECONDS
+  if (raw) return Number(raw)
+  return 7 * 24 * 60 * 60
+}
+
 const issueTokens = async (res, payload) => {
   const accessToken = signAccessToken(payload)
   const refreshTokenId = crypto.randomBytes(16).toString('hex')
   const refreshToken = signRefreshToken({ ...payload, jti: refreshTokenId })
 
-  const refreshTtlSeconds = 7 * 24 * 60 * 60
   const key = `session:${payload.role}:${payload.id}:${refreshTokenId}`
-  await redis.set(key, JSON.stringify({ role: payload.role, id: payload.id }), { EX: refreshTtlSeconds })
+  await setSession(key, { role: payload.role, id: payload.id }, refreshTtlSeconds())
 
   res.cookie(accessCookieName(), accessToken, tokenCookieOptions())
   res.cookie(refreshCookieName(), refreshToken, tokenCookieOptions())
@@ -62,7 +67,7 @@ const clearTokens = async (req, res) => {
     try {
       const payload = jwt.verify(refreshToken, process.env.JWT_SECRET)
       const key = `session:${payload.role}:${payload.id}:${payload.jti}`
-      await redis.del(key)
+      await delSession(key)
     } catch {}
   }
   res.clearCookie(accessCookieName(), tokenCookieOptions())
@@ -166,10 +171,10 @@ export const refresh = async (req, res) => {
 
     const payload = jwt.verify(refreshToken, process.env.JWT_SECRET)
     const key = `session:${payload.role}:${payload.id}:${payload.jti}`
-    const session = await redis.get(key)
+    const session = await getSession(key)
     if (!session) return res.status(401).json({ message: 'Session expired.' })
 
-    await redis.del(key)
+    await delSession(key)
     await issueTokens(res, { role: payload.role, id: payload.id })
     return res.status(200).json({ message: 'Refreshed.' })
   } catch (err) {

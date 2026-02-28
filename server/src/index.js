@@ -1,3 +1,6 @@
+import dns from "node:dns/promises"; 
+dns.setServers(["1.1.1.1", "8.8.8.8"]);
+
 import express from 'express'
 import cors from 'cors'
 import dotenv from 'dotenv'
@@ -5,7 +8,7 @@ import mongoose from 'mongoose'
 import cookieParser from 'cookie-parser'
 import authRoutes from './routes/authRoutes.js'
 import statsRoutes from './routes/statsRoutes.js'
-import { connectRedis } from './utils/redisClient.js'
+import { connectRedis } from './utils/sessionStore.js'
 
 dotenv.config()
 
@@ -39,4 +42,5 @@ const start = async () => {
 }
 
 start()
+
 

@@ -6,21 +6,27 @@ const AcceptTask = ({ data, taskIndex, themeMode = 'light' }) => {
   const [userData, setUserData] = useContext(AuthContext)
   const t = getTheme(themeMode)
 
-  const handleStatusChange = (status) => {\r\n    const confirmationText = status === 'completed' ? 'Mark this task as completed?' : 'Mark this task as failed?'\r\n    if (!window.confirm(confirmationText)) return
+  const handleStatusChange = (status) => {
+    const confirmationText = status === 'completed' ? 'Mark this task as completed?' : 'Mark this task as failed?'
+    if (!window.confirm(confirmationText)) return
+
     const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'))
     if (!loggedInUser || !userData) return
     const user = userData.find((u) => u.email === loggedInUser.data.email)
     if (!user) return
+
     const updatedTasks = user.tasks.map((task, idx) => {
       if (idx === taskIndex) {
         if (status === 'completed') {
           return { ...task, completed: true, active: false, failed: false, newTask: false }
-        } else if (status === 'failed') {
+        }
+        if (status === 'failed') {
           return { ...task, failed: true, active: false, completed: false, newTask: false }
         }
       }
       return task
     })
+
     let { active, completed, failed, newTask } = user.taskCounts
     if (status === 'completed') {
       completed += 1
@@ -31,6 +37,7 @@ const AcceptTask = ({ data, taskIndex, themeMode = 'light' }) => {
       if (user.tasks[taskIndex].active) active -= 1
       if (user.tasks[taskIndex].newTask) newTask -= 1
     }
+
     const updatedUser = {
       ...user,
       tasks: updatedTasks,
@@ -63,4 +70,3 @@ const AcceptTask = ({ data, taskIndex, themeMode = 'light' }) => {
 }
 
 export default AcceptTask
-
