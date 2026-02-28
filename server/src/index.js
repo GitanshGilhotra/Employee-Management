@@ -8,6 +8,9 @@ import mongoose from 'mongoose'
 import cookieParser from 'cookie-parser'
 import authRoutes from './routes/authRoutes.js'
 import statsRoutes from './routes/statsRoutes.js'
+import employeeRoutes from './routes/employeeRoutes.js'
+import taskRoutes from './routes/taskRoutes.js'
+import attendanceRoutes from './routes/attendanceRoutes.js'
 import { connectRedis } from './utils/sessionStore.js'
 
 dotenv.config()
@@ -26,6 +29,9 @@ app.get('/api/health', (req, res) => {
 
 app.use('/api/auth', authRoutes)
 app.use('/api/stats', statsRoutes)
+app.use('/api/employees', employeeRoutes)
+app.use('/api/tasks', taskRoutes)
+app.use('/api/attendance', attendanceRoutes)
 
 const start = async () => {
   try {

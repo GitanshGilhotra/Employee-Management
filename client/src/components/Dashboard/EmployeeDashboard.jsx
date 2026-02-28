@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import TaskList from '../TaskList/TaskList'
+import EmployeeAttendance from '../attendance/EmployeeAttendance'
 import { getTheme } from '../../theme'
 import Skeleton from '../ui/Skeleton'
 
@@ -7,6 +8,7 @@ const navLinks = [
   { name: 'Overview', icon: 'O' },
   { name: 'My Tasks', icon: 'T' },
   { name: 'Profile', icon: 'P' },
+  { name: 'Attendance', icon: 'A' },
 ]
 
 const Sidebar = ({ active, setActive, theme }) => {
@@ -133,6 +135,8 @@ const EmployeeDashboard = (props) => {
     darkMode: false,
   })
   const [profileStatus, setProfileStatus] = useState(null)
+  const [tasks, setTasks] = useState([])
+  const [tasksLoading, setTasksLoading] = useState(true)
   const t = getTheme(theme)
   const isLoading = !props.data
   const activeTasks = stats?.active ?? 0
@@ -142,19 +146,50 @@ const EmployeeDashboard = (props) => {
   const completedTasks = stats?.completed ?? 0
   const completionPercent = totalTasks ? Math.round((completedTasks / totalTasks) * 100) : 0
 
-  useEffect(() => {
-    const loadStats = async () => {
-      try {
-        const res = await fetch('/api/stats/me', { credentials: 'include' })
-        if (!res.ok) return
-        const data = await res.json()
-        setStats(data)
-      } catch {
-        setStats(null)
-      }
+  const loadStats = async () => {
+    try {
+      const res = await fetch('/api/stats/me', { credentials: 'include' })
+      if (!res.ok) return
+      const data = await res.json()
+      setStats(data)
+    } catch {
+      setStats(null)
     }
+  }
+
+  useEffect(() => {
     loadStats()
   }, [])
+
+  useEffect(() => {
+    const loadTasks = async () => {
+      try {
+        setTasksLoading(true)
+        const res = await fetch('/api/tasks/me', { credentials: 'include' })
+        if (!res.ok) return
+        const data = await res.json()
+        setTasks(data)
+      } finally {
+        setTasksLoading(false)
+      }
+    }
+    loadTasks()
+  }, [])
+
+  const handleStatusChange = async (taskId, status) => {
+    const res = await fetch(`/api/tasks/${taskId}/status`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ status }),
+    })
+    if (!res.ok) return
+    const data = await res.json().catch(() => ({}))
+    setTasks((prev) =>
+      prev.map((task) => (task.id === taskId ? { ...task, status: data.status || status } : task))
+    )
+    await loadStats()
+  }
 
   useEffect(() => {
     setSettings((prev) => ({ ...prev, darkMode: theme === 'dark' }))
@@ -300,16 +335,12 @@ const EmployeeDashboard = (props) => {
           <div className={`rounded-2xl border ${t.border} ${t.card} p-6 panel-reveal card-hover ${theme === 'dark' ? 'dark' : ''}`}>
             <h3 className={`text-lg font-semibold ${t.text}`}>Recent Activity</h3>
             <ul className="mt-4 divide-y divide-slate-100/30">
-              {[
-                'You completed "Update website" task',
-                'New task "Fix bugs" assigned to you',
-                '"Client meeting" task due in 2 hours',
-                "You're 80% through your weekly goals",
-              ].map((item) => (
-                <li key={item} className={`py-3 text-sm ${t.textMuted}`}>
-                  {item}
+              {tasks.slice(0, 4).map((task) => (
+                <li key={task.id} className={`py-3 text-sm ${t.textMuted}`}>
+                  {task.title} - {task.status}
                 </li>
               ))}
+              {!tasks.length && <li className={`py-3 text-sm ${t.textMuted}`}>No recent task activity.</li>}
             </ul>
           </div>
         )}
@@ -344,14 +375,14 @@ const EmployeeDashboard = (props) => {
         )}
         <div className={`rounded-2xl border ${t.border} ${t.card} p-6 panel-reveal card-hover ${theme === 'dark' ? 'dark' : ''}`}>
           <h3 className={`text-lg font-semibold ${t.text}`}>Task List</h3>
-          {isLoading ? (
+          {tasksLoading ? (
             <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {Array.from({ length: 3 }).map((_, idx) => (
                 <Skeleton key={idx} className="h-48" />
               ))}
             </div>
           ) : (
-            <TaskList data={props.data} themeMode={theme} />
+            <TaskList tasks={tasks} onStatusChange={handleStatusChange} themeMode={theme} />
           )}
         </div>
       </>
@@ -426,6 +457,8 @@ const EmployeeDashboard = (props) => {
         </div>
       </>
     )
+  } else if (active === 3) {
+    pageContent = <EmployeeAttendance themeMode={theme} />
   }
 
   return (

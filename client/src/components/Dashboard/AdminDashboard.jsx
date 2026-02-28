@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react'
 import CreateTask from '../other/CreateTask'
 import AllTask from '../other/AllTask'
+import AdminAttendance from '../attendance/AdminAttendance'
 import { getTheme } from '../../theme'
 
 const navLinks = [
   { name: 'Overview', icon: 'O' },
   { name: 'Create Task', icon: 'C' },
   { name: 'All Tasks', icon: 'A' },
+  { name: 'Attendance', icon: 'T' },
 ]
 
 const Sidebar = ({ active, setActive, theme }) => {
@@ -127,6 +129,8 @@ const AdminDashboard = (props) => {
   const [active, setActive] = useState(0)
   const [theme, setTheme] = useState('light')
   const [stats, setStats] = useState(null)
+  const [employees, setEmployees] = useState([])
+  const [employeesLoading, setEmployeesLoading] = useState(true)
   const t = getTheme(theme)
   const activeTasks = stats?.active ?? 0
   const newTasks = stats?.newTasks ?? 0
@@ -144,6 +148,21 @@ const AdminDashboard = (props) => {
       }
     }
     loadStats()
+  }, [])
+
+  useEffect(() => {
+    const loadEmployees = async () => {
+      try {
+        setEmployeesLoading(true)
+        const res = await fetch('/api/employees', { credentials: 'include' })
+        if (!res.ok) return
+        const data = await res.json()
+        setEmployees(data)
+      } finally {
+        setEmployeesLoading(false)
+      }
+    }
+    loadEmployees()
   }, [])
 
   const quickStats = [
@@ -243,12 +262,37 @@ const AdminDashboard = (props) => {
             </ul>
           </div>
         </div>
+
+        <div className="mt-6">
+          <div className={`rounded-2xl border ${t.border} ${t.card} p-6 panel-reveal card-hover ${theme === 'dark' ? 'dark' : ''}`}>
+            <div className="flex items-center justify-between">
+              <h3 className={`text-lg font-semibold ${t.text}`}>Team Directory</h3>
+              <span className={`text-xs ${t.textMuted}`}>{employees.length} Employees</span>
+            </div>
+            <div className="mt-4 space-y-2">
+              {employeesLoading ? (
+                <div className={`text-sm ${t.textMuted}`}>Loading employees...</div>
+              ) : employees.length ? (
+                employees.map((emp) => (
+                  <div key={emp.id} className={`flex items-center justify-between rounded-xl border ${t.border} ${t.cardSoft} px-4 py-3 text-sm`}>
+                    <span className={t.text}>{emp.name}</span>
+                    <span className={`text-xs ${t.textMuted}`}>{emp.email}</span>
+                  </div>
+                ))
+              ) : (
+                <div className={`text-sm ${t.textMuted}`}>No employees found.</div>
+              )}
+            </div>
+          </div>
+        </div>
       </>
     )
   } else if (active === 1) {
     pageContent = <CreateTask themeMode={theme} />
   } else if (active === 2) {
     pageContent = <AllTask themeMode={theme} />
+  } else if (active === 3) {
+    pageContent = <AdminAttendance themeMode={theme} />
   }
 
   return (

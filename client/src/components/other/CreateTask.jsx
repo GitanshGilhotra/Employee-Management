@@ -1,51 +1,68 @@
-import React, { useContext, useState } from 'react'
-import { AuthContext } from '../../context/AuthProvider'
+import React, { useEffect, useState } from 'react'
 import { getTheme } from '../../theme'
 
 const CreateTask = ({ themeMode = 'light' }) => {
-  const [userData, setUserData] = useContext(AuthContext)
   const t = getTheme(themeMode)
 
   const [taskTitle, setTaskTitle] = useState('')
   const [taskDescription, setTaskDescription] = useState('')
   const [taskDate, setTaskDate] = useState('')
-  const [asignTo, setAsignTo] = useState('')
+  const [assignTo, setAssignTo] = useState('')
   const [category, setCategory] = useState('')
+  const [employees, setEmployees] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [message, setMessage] = useState('')
 
-  const submitHandler = (e) => {
-    e.preventDefault()
-
-    const data = userData.map((elem) => {
-      if (asignTo === elem.firstName) {
-        const task = {
-          taskTitle,
-          taskDescription,
-          taskDate,
-          category,
-          active: false,
-          newTask: true,
-          failed: false,
-          completed: false,
-        }
-        return {
-          ...elem,
-          tasks: [...elem.tasks, task],
-          taskCounts: {
-            ...elem.taskCounts,
-            newTask: elem.taskCounts.newTask + 1,
-          },
-        }
+  useEffect(() => {
+    const loadEmployees = async () => {
+      try {
+        setLoading(true)
+        const res = await fetch('/api/employees', { credentials: 'include' })
+        if (!res.ok) return
+        const data = await res.json()
+        setEmployees(data)
+      } finally {
+        setLoading(false)
       }
-      return elem
+    }
+    loadEmployees()
+  }, [])
+
+  const submitHandler = async (e) => {
+    e.preventDefault()
+    setMessage('')
+
+    if (!assignTo) {
+      setMessage('Select an employee to assign this task.')
+      return
+    }
+
+    const res = await fetch('/api/tasks', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({
+        title: taskTitle,
+        description: taskDescription,
+        dueDate: taskDate,
+        category,
+        assignedTo: assignTo,
+      }),
     })
-    setUserData(data)
-    localStorage.setItem('employees', JSON.stringify(data))
+
+    const data = await res.json().catch(() => ({}))
+    if (!res.ok) {
+      setMessage(data.message || 'Unable to create task.')
+      return
+    }
 
     setTaskTitle('')
     setCategory('')
-    setAsignTo('')
+    setAssignTo('')
     setTaskDate('')
     setTaskDescription('')
+    setMessage('Task created successfully.')
+    window.setTimeout(() => setMessage(''), 2500)
   }
 
   return (
@@ -57,6 +74,7 @@ const CreateTask = ({ themeMode = 'light' }) => {
             <input
               value={taskTitle}
               onChange={(e) => setTaskTitle(e.target.value)}
+              required
               className={`mt-2 w-full rounded-xl border ${t.border} ${themeMode === 'dark' ? 'bg-transparent text-white' : 'bg-white text-slate-900'} px-4 py-3 text-sm placeholder:text-slate-400 focus:border-slate-900 focus:outline-none`}
               type="text"
               placeholder="Make a UI design"
@@ -67,25 +85,33 @@ const CreateTask = ({ themeMode = 'light' }) => {
             <input
               value={taskDate}
               onChange={(e) => setTaskDate(e.target.value)}
+              required
               className={`mt-2 w-full rounded-xl border ${t.border} ${themeMode === 'dark' ? 'bg-transparent text-white' : 'bg-white text-slate-900'} px-4 py-3 text-sm focus:border-slate-900 focus:outline-none`}
               type="date"
             />
           </div>
           <div>
             <label className={`text-sm ${t.textMuted}`}>Assign to</label>
-            <input
-              value={asignTo}
-              onChange={(e) => setAsignTo(e.target.value)}
-              className={`mt-2 w-full rounded-xl border ${t.border} ${themeMode === 'dark' ? 'bg-transparent text-white' : 'bg-white text-slate-900'} px-4 py-3 text-sm placeholder:text-slate-400 focus:border-slate-900 focus:outline-none`}
-              type="text"
-              placeholder="Employee name"
-            />
+            <select
+              value={assignTo}
+              onChange={(e) => setAssignTo(e.target.value)}
+              required
+              className={`mt-2 w-full rounded-xl border ${t.border} ${themeMode === 'dark' ? 'bg-transparent text-white' : 'bg-white text-slate-900'} px-4 py-3 text-sm focus:border-slate-900 focus:outline-none`}
+            >
+              <option value="">{loading ? 'Loading employees...' : 'Select employee'}</option>
+              {employees.map((emp) => (
+                <option key={emp.id} value={emp.id}>
+                  {emp.name} ({emp.email})
+                </option>
+              ))}
+            </select>
           </div>
           <div>
             <label className={`text-sm ${t.textMuted}`}>Category</label>
             <input
               value={category}
               onChange={(e) => setCategory(e.target.value)}
+              required
               className={`mt-2 w-full rounded-xl border ${t.border} ${themeMode === 'dark' ? 'bg-transparent text-white' : 'bg-white text-slate-900'} px-4 py-3 text-sm placeholder:text-slate-400 focus:border-slate-900 focus:outline-none`}
               type="text"
               placeholder="Design, dev, etc"
@@ -99,10 +125,12 @@ const CreateTask = ({ themeMode = 'light' }) => {
             <textarea
               value={taskDescription}
               onChange={(e) => setTaskDescription(e.target.value)}
+              required
               className={`mt-2 w-full h-44 rounded-xl border ${t.border} ${themeMode === 'dark' ? 'bg-transparent text-white' : 'bg-white text-slate-900'} px-4 py-3 text-sm placeholder:text-slate-400 focus:border-slate-900 focus:outline-none`}
             ></textarea>
           </div>
           <button className={`w-full rounded-xl py-3 text-sm font-semibold border ${t.buttonPrimary}`}>Create Task</button>
+          {message && <p className={`text-xs ${t.textMuted}`}>{message}</p>}
         </div>
       </form>
     </div>
