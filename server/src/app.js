@@ -11,7 +11,11 @@ import attendanceRoutes from './routes/attendanceRoutes.js'
 dns.setServers(['1.1.1.1', '8.8.8.8'])
 
 const app = express()
-const CLIENT_ORIGIN = process.env.CLIENT_ORIGIN || 'http://localhost:5173'
+const CLIENT_ORIGIN =
+  process.env.CLIENT_ORIGIN ||
+  (process.env.NODE_ENV === 'production'
+    ? 'https://employee-management-client-gilt.vercel.app'
+    : 'http://localhost:5173')
 
 app.use(cors({ origin: CLIENT_ORIGIN, credentials: true }))
 app.use(express.json())

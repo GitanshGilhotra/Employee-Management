@@ -64,8 +64,8 @@ const sendResetEmail = async (email, resetUrl) => {
 
 const accessCookieName = () => process.env.COOKIE_NAME || 'ems_access'
 const refreshCookieName = () => process.env.REFRESH_COOKIE_NAME || 'ems_refresh'
-const cookieSecure = () => process.env.COOKIE_SECURE === 'true'
-const cookieSameSite = () => process.env.COOKIE_SAMESITE || 'lax'
+const cookieSecure = () => (process.env.COOKIE_SECURE ? process.env.COOKIE_SECURE === 'true' : process.env.NODE_ENV === 'production')
+const cookieSameSite = () => process.env.COOKIE_SAMESITE || (process.env.NODE_ENV === 'production' ? 'none' : 'lax')
 
 const tokenCookieOptions = () => {
   const cookieDays = Number(process.env.COOKIE_DAYS || 7)
