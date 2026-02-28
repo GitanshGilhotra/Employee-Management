@@ -20,16 +20,19 @@ const CLIENT_ORIGIN = process.env.CLIENT_ORIGIN
   : DEFAULT_ORIGINS
 
 app.set('trust proxy', 1)
+// log incoming requests (helps with CORS debugging)
+app.use((req, res, next) => {
+  console.log('>>', req.method, req.originalUrl, 'origin=', req.headers.origin);
+  next();
+});
+
+// set up CORS: allow only the configured origins and echo the request origin
 app.use(
   cors({
-    origin: (origin, callback) => {
-      if (!origin) return callback(null, true)
-      if (CLIENT_ORIGIN.includes(origin)) return callback(null, true)
-      return callback(new Error('Not allowed by CORS'))
-    },
+    origin: CLIENT_ORIGIN,
     credentials: true,
   })
-)
+);
 app.use(express.json())
 app.use(cookieParser())
 
