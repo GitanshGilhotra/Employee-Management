@@ -1,4 +1,4 @@
-import React, { Suspense } from 'react'
+ï»¿import React, { Suspense } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import Login from './components/Auth/Login'
 import EmployeeDashboard from './components/Dashboard/EmployeeDashboard'
@@ -92,7 +92,7 @@ const App = () => {
   if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
-        <div className="rounded-xl border border-slate-200 bg-white px-6 py-4 text-sm text-slate-600">Loading…</div>
+        <div className="rounded-xl border border-slate-200 bg-white px-6 py-4 text-sm text-slate-600">Loading...</div>
       </div>
     )
   }
@@ -101,7 +101,7 @@ const App = () => {
     <Suspense
       fallback={
         <div className="min-h-screen flex items-center justify-center bg-slate-50">
-          <div className="rounded-xl border border-slate-200 bg-white px-6 py-4 text-sm text-slate-600">Loading…</div>
+          <div className="rounded-xl border border-slate-200 bg-white px-6 py-4 text-sm text-slate-600">Loading...</div>
         </div>
       }
     >
@@ -118,3 +118,4 @@ const App = () => {
 }
 
 export default App
+

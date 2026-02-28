@@ -78,7 +78,7 @@ const Sidebar = ({ active, setActive, theme }) => {
   )
 }
 
-const Navbar = ({ theme, setTheme, onLogout }) => {
+const Navbar = ({ theme, setTheme, onLogout, activeTasks, newTasks, queueCount }) => {
   const t = getTheme(theme)
 
   return (
@@ -90,7 +90,7 @@ const Navbar = ({ theme, setTheme, onLogout }) => {
             <p className={`text-xs ${t.textMuted}`}>Your work overview and updates</p>
           </div>
           <span className={`badge-shimmer hidden sm:inline-flex items-center rounded-full px-3 py-1 text-[10px] uppercase tracking-widest border ${t.border} ${t.textMuted}`}>
-            Activity � Live
+            Activity - Live
           </span>
         </div>
         <div className="flex items-center gap-3">
@@ -114,9 +114,9 @@ const Navbar = ({ theme, setTheme, onLogout }) => {
       </div>
       <div className={`px-8 pb-3 pt-1 ${theme === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}>
         <div className={`flex flex-wrap gap-3 text-[11px] uppercase tracking-[0.2em] ${t.textSubtle}`}>
-          <span className="rounded-full border px-3 py-1">Focus � 3 Due</span>
-          <span className="rounded-full border px-3 py-1">Priority � High</span>
-          <span className="rounded-full border px-3 py-1">Queue � 5 Items</span>
+          <span className="rounded-full border px-3 py-1">Due - {activeTasks}</span>
+          <span className="rounded-full border px-3 py-1">New - {newTasks}</span>
+          <span className="rounded-full border px-3 py-1">Queue - {queueCount} Items</span>
         </div>
       </div>
     </nav>
@@ -127,8 +127,20 @@ const EmployeeDashboard = (props) => {
   const [active, setActive] = useState(0)
   const [theme, setTheme] = useState('light')
   const [stats, setStats] = useState(null)
+  const [settings, setSettings] = useState({
+    emailNotifications: true,
+    taskReminders: true,
+    darkMode: false,
+  })
+  const [profileStatus, setProfileStatus] = useState(null)
   const t = getTheme(theme)
   const isLoading = !props.data
+  const activeTasks = stats?.active ?? 0
+  const newTasks = stats?.newTasks ?? 0
+  const queueCount = activeTasks + newTasks
+  const totalTasks = stats?.totalTasks ?? 0
+  const completedTasks = stats?.completed ?? 0
+  const completionPercent = totalTasks ? Math.round((completedTasks / totalTasks) * 100) : 0
 
   useEffect(() => {
     const loadStats = async () => {
@@ -144,10 +156,29 @@ const EmployeeDashboard = (props) => {
     loadStats()
   }, [])
 
+  useEffect(() => {
+    setSettings((prev) => ({ ...prev, darkMode: theme === 'dark' }))
+  }, [theme])
+
+  const handleToggleSetting = (key) => {
+    setSettings((prev) => {
+      const next = { ...prev, [key]: !prev[key] }
+      if (key === 'darkMode') {
+        setTheme(next.darkMode ? 'dark' : 'light')
+      }
+      return next
+    })
+  }
+
+  const handleUpdateProfile = () => {
+    setProfileStatus('Profile updates saved.')
+    window.setTimeout(() => setProfileStatus(null), 2500)
+  }
+
   const quickStats = [
-    { label: 'Priority', value: 'Focused' },
-    { label: 'Tasks Due', value: stats?.active ?? 0 },
-    { label: 'Reviews', value: stats?.completed ?? 0 },
+    { label: 'Tasks Due', value: activeTasks },
+    { label: 'New Tasks', value: newTasks },
+    { label: 'Completed', value: completedTasks },
   ]
 
   const renderSkeletonStats = () => (
@@ -199,7 +230,7 @@ const EmployeeDashboard = (props) => {
           <h2 className={`text-3xl font-semibold ${t.text}`}>
             Welcome back, {props.data?.firstName || 'Employee'}
           </h2>
-          <p className={`mt-2 ${t.textMuted}`}>Here뭩 a focused view of your current work.</p>
+          <p className={`mt-2 ${t.textMuted}`}>Here's a focused view of your current work.</p>
         </div>
 
         {isLoading ? (
@@ -233,16 +264,16 @@ const EmployeeDashboard = (props) => {
           ) : (
             <>
               <div className={`rounded-2xl border ${t.border} ${t.card} p-6 panel-reveal card-hover ${theme === 'dark' ? 'dark' : ''}`}>
-                <h3 className={`text-lg font-semibold ${t.text}`}>Today뭩 Progress</h3>
+                <h3 className={`text-lg font-semibold ${t.text}`}>Today's Progress</h3>
                 <div className="mt-4">
                   <div className="flex justify-between text-sm">
-                    <span className={t.textMuted}>Tasks Completed</span>
-                    <span className={t.text}>{stats?.completed ?? 0}</span>
+                    <span className={t.textMuted}>Completion Rate</span>
+                    <span className={t.text}>{completionPercent}%</span>
                   </div>
                   <div className={`mt-3 h-2 w-full rounded-full ${theme === 'dark' ? 'bg-white/10' : 'bg-slate-200'}`}>
                     <div
                       className={`h-2 rounded-full ${theme === 'dark' ? 'bg-white' : 'bg-slate-900'}`}
-                      style={{ width: `${Math.min((stats?.completed ?? 0) * 20, 100)}%` }}
+                      style={{ width: `${completionPercent}%` }}
                     ></div>
                   </div>
                 </div>
@@ -255,7 +286,7 @@ const EmployeeDashboard = (props) => {
                     View All Tasks
                   </button>
                   <button className={`w-full rounded-lg px-4 py-3 text-sm font-semibold border ${t.buttonGhost}`} onClick={() => setActive(1)}>
-                    Mark Task Complete
+                    Review Task List
                   </button>
                 </div>
               </div>
@@ -366,23 +397,29 @@ const EmployeeDashboard = (props) => {
             <h3 className={`text-lg font-semibold ${t.text}`}>Account Settings</h3>
             <div className="mt-6 space-y-4">
               {[
-                { label: 'Email Notifications', active: true },
-                { label: 'Task Reminders', active: true },
-                { label: 'Dark Mode', active: theme === 'dark' },
-              ].map((setting) => (
-                <div key={setting.label} className="flex items-center justify-between text-sm">
-                  <span className={t.textMuted}>{setting.label}</span>
-                  <button
-                    className={`h-6 w-12 rounded-full border ${setting.active ? t.buttonPrimary : t.buttonGhost}`}
-                  >
-                    <span
-                      className={`block h-4 w-4 rounded-full transition ${setting.active ? 'translate-x-6' : 'translate-x-1'} ${theme === 'dark' ? 'bg-black' : 'bg-white'}`}
-                    />
-                  </button>
-                </div>
-              ))}
-              <button className={`mt-4 w-full rounded-lg px-4 py-3 text-sm font-semibold border ${t.buttonPrimary}`}>
-                Update Profile
+                { label: 'Email Notifications', key: 'emailNotifications' },
+                { label: 'Task Reminders', key: 'taskReminders' },
+                { label: 'Dark Mode', key: 'darkMode' },
+              ].map((setting) => {
+                const isActive = settings[setting.key]
+                return (
+                  <div key={setting.label} className="flex items-center justify-between text-sm">
+                    <span className={t.textMuted}>{setting.label}</span>
+                    <button
+                      className={`h-6 w-12 rounded-full border ${isActive ? t.buttonPrimary : t.buttonGhost}`}
+                      onClick={() => handleToggleSetting(setting.key)}
+                      aria-pressed={isActive}
+                    >
+                      <span
+                        className={`block h-4 w-4 rounded-full transition ${isActive ? 'translate-x-6' : 'translate-x-1'} ${theme === 'dark' ? 'bg-black' : 'bg-white'}`}
+                      />
+                    </button>
+                  </div>
+                )
+              })}
+              {profileStatus ? <p className={`text-xs ${t.textMuted}`}>{profileStatus}</p> : null}
+              <button className={`mt-4 w-full rounded-lg px-4 py-3 text-sm font-semibold border ${t.buttonPrimary}`} onClick={handleUpdateProfile}>
+                Save Settings
               </button>
             </div>
           </div>
@@ -396,7 +433,14 @@ const EmployeeDashboard = (props) => {
       <div className={`flex h-screen w-full ${t.bgPage} transition-colors duration-300`}>
         <Sidebar active={active} setActive={setActive} theme={theme} />
         <div className="flex-1 flex flex-col">
-          <Navbar theme={theme} setTheme={setTheme} onLogout={props.onLogout} />
+          <Navbar
+            theme={theme}
+            setTheme={setTheme}
+            onLogout={props.onLogout}
+            activeTasks={activeTasks}
+            newTasks={newTasks}
+            queueCount={queueCount}
+          />
           <main className="flex-1 overflow-y-auto p-8">
             <div className={`w-full max-w-6xl rounded-3xl border ${t.border} ${t.bgPanel} p-8 shadow-[0_20px_60px_rgba(15,23,42,0.08)] ${t.text} content-texture ${theme === 'dark' ? 'dark' : ''}`}>
               <div key={active} className="page-fade">
@@ -411,3 +455,4 @@ const EmployeeDashboard = (props) => {
 }
 
 export default EmployeeDashboard
+

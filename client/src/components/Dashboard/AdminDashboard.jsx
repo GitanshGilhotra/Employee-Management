@@ -78,7 +78,7 @@ const Sidebar = ({ active, setActive, theme }) => {
   )
 }
 
-const Navbar = ({ theme, setTheme, onLogout }) => {
+const Navbar = ({ theme, setTheme, onLogout, stats, activeTasks, queueCount }) => {
   const t = getTheme(theme)
 
   return (
@@ -90,7 +90,7 @@ const Navbar = ({ theme, setTheme, onLogout }) => {
             <p className={`text-xs ${t.textMuted}`}>Manage operations and team performance</p>
           </div>
           <span className={`badge-shimmer hidden sm:inline-flex items-center rounded-full px-3 py-1 text-[10px] uppercase tracking-widest border ${t.border} ${t.textMuted}`}>
-            Activity · Live
+            Activity - Live
           </span>
         </div>
         <div className="flex items-center gap-3">
@@ -114,9 +114,9 @@ const Navbar = ({ theme, setTheme, onLogout }) => {
       </div>
       <div className={`px-8 pb-3 pt-1 ${theme === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}>
         <div className={`flex flex-wrap gap-3 text-[11px] uppercase tracking-[0.2em] ${t.textSubtle}`}>
-          <span className="rounded-full border px-3 py-1">KPI · 92% On-time</span>
-          <span className="rounded-full border px-3 py-1">Risk · Low</span>
-          <span className="rounded-full border px-3 py-1">Queue · 8 Items</span>
+          <span className="rounded-full border px-3 py-1">Total - {stats?.totalTasks ?? 0} Tasks</span>
+          <span className="rounded-full border px-3 py-1">Active - {activeTasks}</span>
+          <span className="rounded-full border px-3 py-1">Queue - {queueCount} Items</span>
         </div>
       </div>
     </nav>
@@ -128,6 +128,9 @@ const AdminDashboard = (props) => {
   const [theme, setTheme] = useState('light')
   const [stats, setStats] = useState(null)
   const t = getTheme(theme)
+  const activeTasks = stats?.active ?? 0
+  const newTasks = stats?.newTasks ?? 0
+  const queueCount = activeTasks + newTasks
 
   useEffect(() => {
     const loadStats = async () => {
@@ -144,9 +147,9 @@ const AdminDashboard = (props) => {
   }, [])
 
   const quickStats = [
-    { label: 'Team Health', value: '98%' },
-    { label: 'Open Reviews', value: '6' },
-    { label: 'Pending', value: '4' },
+    { label: 'Active Tasks', value: activeTasks },
+    { label: 'New Tasks', value: newTasks },
+    { label: 'Failed Tasks', value: stats?.failed ?? 0 },
   ]
 
   let pageContent
@@ -253,7 +256,14 @@ const AdminDashboard = (props) => {
       <div className={`flex h-screen w-full ${t.bgPage} transition-colors duration-300`}>
         <Sidebar active={active} setActive={setActive} theme={theme} />
         <div className="flex-1 flex flex-col">
-          <Navbar theme={theme} setTheme={setTheme} onLogout={props.onLogout} />
+          <Navbar
+            theme={theme}
+            setTheme={setTheme}
+            onLogout={props.onLogout}
+            stats={stats}
+            activeTasks={activeTasks}
+            queueCount={queueCount}
+          />
           <main className="flex-1 overflow-y-auto p-8">
             <div className={`w-full max-w-6xl rounded-3xl border ${t.border} ${t.bgPanel} p-8 shadow-[0_20px_60px_rgba(15,23,42,0.08)] ${t.text} content-texture ${theme === 'dark' ? 'dark' : ''}`}>
               <div key={active} className="page-fade">
@@ -268,3 +278,4 @@ const AdminDashboard = (props) => {
 }
 
 export default AdminDashboard
+
