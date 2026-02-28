@@ -17,6 +17,9 @@
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.30.3"
   },
+  "optionalDependencies": {
+    "@rollup/rollup-linux-x64-gnu": "^4.20.0"
+  },
   "devDependencies": {
     "@types/react": "^18.2.66",
     "@types/react-dom": "^18.2.22",
