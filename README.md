@@ -62,3 +62,13 @@ npm.cmd run dev:client
 - `POST /api/auth/forgot-password`
 - `POST /api/auth/reset-password`
 - `GET /api/health`
+
+
+### Deployment URLs
+- **Frontend (client)**: `https://employee-management-client-gilt.vercel.app`
+- **Backend (server)**: `https://employee-management-server-d9294smx3-gitanshgilhotras-projects.vercel.app`
+
+The client uses `VITE_API_URL` to determine where to send requests. Set that variable in
+`.env` or on Vercel to point at your current backend URL (the long domain above).
+If you don't set it the default in `client/src/utils/api.js` will be used, so keep it
+up to date when you redeploy the server.
